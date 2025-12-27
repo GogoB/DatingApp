@@ -1,19 +1,16 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, signal, inject, OnInit, Signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { lastValueFrom } from 'rxjs';
+import { Component, inject } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
+import { Nav } from "../layout/nav/nav";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, Nav],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App implements OnInit{
-  private http = inject(HttpClient);
-  protected readonly title = 'Dating App';
-  protected members = signal<any>([]);
-
+export class App{
+  protected router = inject(Router);
+  
 //2 of the ways to approach getting data 
 //using subscribe
 async  ngOnInit(){
@@ -23,17 +20,7 @@ async  ngOnInit(){
 //      error: error => console.log(error),
 //      complete: () => console.log('Completed the http request')
 //    });
-    this.members.set(await this.getMembers())
-  }
 
-  async getMembers(){
-    try{
-      //promise is depricated so we use lastValueFrom and firstValueFrom
-      return lastValueFrom (this.http.get('https://localhost:5001/api/members'));
-    } catch(error){
-      console.log(error);
-      throw error
-    }
+//    console.log("MEMBERS CHECK!!!!!",this.members)
   }
-  
 }
