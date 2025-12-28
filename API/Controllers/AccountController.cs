@@ -19,7 +19,7 @@ public class AccountController(AppDbContext context, ITokenService tokenService)
 
         if(await EmailExists(registerDto.Email)) return BadRequest("EmailExists");
 
-        using var hmac = new HMACSHA3_512(); //cryptography class
+        using var hmac = new HMACSHA512(); //cryptography class
          var user = new AppUser
          {
              DisplayName = registerDto.DisplayName,

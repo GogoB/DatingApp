@@ -5,6 +5,10 @@ import { MemberDetailed } from '../features/members/member-detailed/member-detai
 import { Lists } from '../features/lists/lists';
 import { Messages } from '../features/messages/messages';
 import { authGuard } from '../core/guards/auth-guard';
+import { TestBed } from '@angular/core/testing';
+import { TestErrors } from '../features/test-errors/test-errors';
+import { NotFound } from '../shared/errors/not-found/not-found';
+import { ServerError } from '../shared/errors/server-error/server-error';
 
 
 //here we define the routes our app will have
@@ -24,6 +28,8 @@ export const routes: Routes = [
             { path: 'messages', component: Messages },
         ]
     },
-    { path: '**', component: Home }, //wild card ** route
+    {path: 'errors', component: TestErrors},
+    {path: 'server-error', component: ServerError},
+    { path: '**', component: NotFound}, //wild card ** route
 
 ];
