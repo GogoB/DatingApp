@@ -17,19 +17,20 @@ public class AccountController(AppDbContext context, ITokenService tokenService)
     public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
     {
 
-        if(await EmailExists(registerDto.Email)) return BadRequest("EmailExists");
+        if (await EmailExists(registerDto.Email)) return BadRequest("EmailExists");
 
         using var hmac = new HMACSHA512(); //cryptography class
-         var user = new AppUser
-         {
-             DisplayName = registerDto.DisplayName,
-             Email = registerDto.Email,
-             PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-             PasswordSalt = hmac.Key
-         };
+        var user = new AppUser
+        {
+            DisplayName = registerDto.DisplayName,
+            Email = registerDto.Email,
+            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
+            PasswordSalt = hmac.Key
+        };
 
-         context.Users.Add(user);
-        context.SaveChanges(); // VO KODOT NEGOV E AWAIT KAJ MENE PRAVI ERROR
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+        // VO KODOT NEGOV E AWAIT KAJ MENE PRAVI ERROR
 
         return user.toDto(tokenService);
     }
@@ -40,18 +41,20 @@ public class AccountController(AppDbContext context, ITokenService tokenService)
     //kako objekt mozes isto preku query no treba da anotiras isto i za parametar [FromBody],[fromquery]
 
     [HttpPost("login")]
-        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
+    public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
     {
         var user = await context.Users.SingleOrDefaultAsync(x => x.Email == loginDto.Email);
-    
-        if(user == null) return Unauthorized("Invalid email address");
 
-        using var hmac = new HMACSHA3_512(user.PasswordSalt);
+        if (user == null) return Unauthorized("Invalid email address");
+
+        using var hmac = new HMACSHA512(user.PasswordSalt);
         var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password));
-    
-        for(var i = 0; i < computedHash.Length; i++)
+        //test linija
+        
+
+        for (var i = 0; i < computedHash.Length; i++)
         {
-            if(computedHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid password");
+            if (computedHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid password");
         }
         return user.toDto(tokenService);
     }
